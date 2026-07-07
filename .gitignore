@@ -1,5 +1,10 @@
 .venv/
 __pycache__/
 *.pyc
+<<<<<<< HEAD
 # .env
 notification.db
+=======
+.env
+*.db
+>>>>>>> c1d920b4e1198abbfe06cab9643dde77c8dcb4cf
