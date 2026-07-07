@@ -1,40 +1,33 @@
 from passlib.context import CryptContext
 from datetime import datetime,timedelta,timezone
 from jose import jwt
-from dotenv import load_dotenv
-import os
+
+from fastapi.security import OAuth2PasswordBearer
+
 from intern_app.config import (
     SECRET_KEY,
     ALGORITHM,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
-load_dotenv()
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES",30)
-)
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl= "login")
 pwd_context=CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
 )
 
-def get_password_hash(password):
+def get_password_hash(password:str):
     return pwd_context.hash(password)
 
 def verify_password(
-        plain_password,
-        hashed_password):
+        plain_password:str,
+        hashed_password:str):
     return pwd_context.verify(
         plain_password,
         hashed_password
     )
-SECRET_KEY = "mysecret987654321key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 def create_access_token(data:dict,expires_delta:timedelta|None=None):
+      
         to_encode = data.copy()
         if expires_delta:
              expire = datetime.now(timezone.utc) + expires_delta
@@ -50,4 +43,3 @@ def create_access_token(data:dict,expires_delta:timedelta|None=None):
              algorithm= ALGORITHM
         )
         return encoded_jwt
-

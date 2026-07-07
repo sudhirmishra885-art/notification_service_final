@@ -3,14 +3,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models.user import User,Notification
-
-from ..schemas.user import LoginRequest,NotificationCreate, NotificationUpdate
+from ..schemas.user import NotificationCreate, NotificationUpdate
 from intern_app.dependencies import get_current_user
 from ..core.security import verify_password,create_access_token,get_password_hash
 
 router= APIRouter()
 
-@router.get("/")
+@router.get("/user")
 def profile(current_user: User = Depends(get_current_user)):
     return current_user
 
@@ -35,17 +34,17 @@ def register(username:str, email:str, password:str,db:Session=Depends(get_db)):
     
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends() , db:Session= Depends(get_db)):
+def login(form_data: OAuth2PasswordRequestForm = Depends(),db:Session= Depends(get_db)):
     db_user= db.query(User).filter(
         User.email == form_data.username
     ).first()
     
-    print("User:", db_user)  
-    print("Stored Password:", db_user.password)
-    print("Entered Password:", form_data.password)
+    if db_user is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password"
+        )
 
-    is_valid = verify_password(form_data.password, db_user.password)
-    print("Verify:", is_valid)
     if not verify_password(form_data.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid password")
         
